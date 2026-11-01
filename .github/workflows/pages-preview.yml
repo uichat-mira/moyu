@@ -1,6 +1,6 @@
 name: Folio Pages Preview
 
-# Preview-only runtime: checkout the exact Folio FOL-022 + FOL-023 candidate commit,
+# Preview-only runtime: checkout the exact Folio FOL-022 + FOL-023 + editorial-home candidate commit,
 # pack its public npm artifact and test it as an independent Moyu consumer.
 # The published npm dependency in package-lock.json remains @uichat-mira/folio@0.1.1.
 # Do NOT reuse this source-override path for production, test or dev promotion.
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: uichat-mira/folio
-          ref: 5d4927b3f3156db9d9310e612eaddaab78d4ac18
+          ref: a0d7c88c23b1a9f39b56d016626c2257659b57ae
           path: .folio-preview-source
           persist-credentials: false
       - uses: actions/setup-node@v4
