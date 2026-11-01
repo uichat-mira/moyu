@@ -1,6 +1,6 @@
 name: Folio Pages Preview
 
-# Preview-only runtime: checkout the exact Folio FOL-022 candidate commit,
+# Preview-only runtime: checkout the exact Folio FOL-022 + FOL-023 candidate commit,
 # pack its public npm artifact and test it as an independent Moyu consumer.
 # The published npm dependency in package-lock.json remains @uichat-mira/folio@0.1.1.
 # Do NOT reuse this source-override path for production, test or dev promotion.
@@ -27,11 +27,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch pinned Folio collection-index candidate
+      - name: Fetch pinned Folio collection + TOC candidate
         uses: actions/checkout@v4
         with:
           repository: uichat-mira/folio
-          ref: 47efc35a39b25233b63b23c958d549441e9c7034
+          ref: 5b962a26ed30d3f81a2196d4c1dcf849394c361e
           path: .folio-preview-source
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -50,7 +50,7 @@ jobs:
           tarball="$(find "$RUNNER_TEMP/folio-preview-pkg" -maxdepth 1 -name '*.tgz' -print -quit)"
           test -n "$tarball"
           npm install --no-save --package-lock=false --no-audit --no-fund "$tarball"
-          node --input-type=module -e 'import {selectFolioCollectionDocs,folioCollectionIndexes} from "@uichat-mira/folio"; const xs=selectFolioCollectionDocs([{path:"/notes/2026/deep/a",title:"Nested"}],"/notes"); if(xs.length!==1 || folioCollectionIndexes({title:"X",description:"D",collections:[{path:"/notes"}]}).length!==1) process.exit(1); console.log("FOL-022 recursive route API installed")'
+          node --input-type=module -e 'import {selectFolioCollectionDocs,folioCollectionIndexes,FolioToc} from "@uichat-mira/folio"; const xs=selectFolioCollectionDocs([{path:"/notes/2026/deep/a",title:"Nested"}],"/notes"); if(xs.length!==1 || folioCollectionIndexes({title:"X",description:"D",collections:[{path:"/notes"}]}).length!==1 || typeof FolioToc!=="function") process.exit(1); console.log("FOL-022 and FOL-023 candidate APIs installed")'
       - name: Build and verify GitHub Pages project-path preview
         run: npm run check
         env:
