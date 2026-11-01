@@ -48,7 +48,7 @@ jobs:
         run: npm run check
         env:
           VITE_SITE_BASE: /
-          SITE_ORIGIN: https://test.6260381.xyz
+          SITE_ORIGIN: https://6260381.xyz
       - name: Preserve root-path artifact for visual review
         uses: actions/upload-artifact@v4
         with:
