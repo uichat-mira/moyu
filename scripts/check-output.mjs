@@ -14,7 +14,13 @@ const about = readFileSync(join("dist", "docs/about/index.html"), "utf8");
 const sitemap = readFileSync(join("dist", "sitemap.xml"), "utf8");
 const notFound = readFileSync(join("dist", "404.html"), "utf8");
 
-assert.match(home, /<main class="folio-home folio-journal-home">/);
+assert.match(home, /<main class="folio-home folio-journal-home folio-editorial-home">/);
+assert.match(home, /class="folio-editorial-feature"/);
+assert.match(home, /class="folio-editorial-meta"/);
+assert.match(home, /class="folio-editorial-recent"/);
+assert.match(home, /class="folio-editorial-side-section"/);
+assert.match(home, /href="\/moyu\/blogs\/"/);
+assert.match(home, /href="\/moyu\/projects\/"/);
 assert.match(home, /<h2>博客<\/h2>/);
 assert.match(home, /<h2>好物<\/h2>/);
 assert.match(home, /class="folio-entry-list"/);
