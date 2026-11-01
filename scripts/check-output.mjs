@@ -38,6 +38,11 @@ assert.ok(sitemap.includes(origin + normalizedBase + "docs/about/"), "about site
 for (const page of [home, about, migrated, notFound]) {
   assert.equal((page.match(/class="moyu-site-footer"/g) || []).length, 1, "expected one site footer per page");
   assert.match(page, /Built with/);
+  assert.equal((page.match(/class="moyu-site-footer__showcase"/g) || []).length, 1, "expected one project showcase");
+  assert.match(page, /BEHIND THE WORDS/);
+  assert.match(page, /href="https:\/\/mira\.tomz\.io\/"/);
+  assert.match(page, /class="moyu-site-footer__project-name">Folio/);
+  assert.match(page, /class="moyu-site-footer__project-name">UIChat Mira/);
   assert.match(page, /href="https:\/\/github.com\/uichat-mira\/folio"/);
   assert.match(page, /href="https:\/\/beian\.miit\.gov\.cn\/"/);
   assert.match(page, /粤ICP备2026107949号-1/);
