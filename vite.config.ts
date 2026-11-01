@@ -41,7 +41,7 @@ const staticRoutes: FolioStaticBuildOptions = {
           '<section class="moyu-hero"><div class="moyu-hero__copy">' +
           '<span class="moyu-kicker">AN UNHURRIED LITTLE CORNER</span>' +
           '<p class="moyu-intro">工作之外，还有生活。</p>' +
-          '<h1>摸鱼划水<span>记录</span><i>。</i></h1>' +
+          '<h1>摸鱼划水<span>记录<i>。</i></span></h1>' +
           '<p class="moyu-hero__lede">记一点日常，存几段心情。忙里偷闲不必找借口，生活本来就值得认真记录。</p>' +
           '<div class="moyu-hero__actions"><a class="moyu-button moyu-button--primary" href="#writing">看看最近写的 ↘</a> ' +
           '<a class="moyu-text-link" href="' + routeHref("/about") + '">关于这里 ↗</a></div></div>' +
