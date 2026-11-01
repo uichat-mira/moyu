@@ -16,7 +16,7 @@ group: "博客"
 
 ## 图一 · 阿里（浅色版）
 
-![图一 · 阿里模板 - 浅色卡片版](https://uichat-mira.github.io/moyu/images/template-ali.webp)
+![图一 · 阿里模板 - 浅色卡片版](../../images/template-ali.webp)
 
 这张图给人的感觉是——**像从同一个模子里刻出来的，但刻歪了。**
 
@@ -36,7 +36,7 @@ group: "博客"
 
 ## 图二 · 腾讯（深色版）
 
-![图二 · 腾讯模板 - 深色编辑风](https://uichat-mira.github.io/moyu/images/template-tencent.webp)
+![图二 · 腾讯模板 - 深色编辑风](../../images/template-tencent.webp)
 
 这张图的问题是——**信息层级比迷宫还乱。**
 
@@ -54,7 +54,7 @@ group: "博客"
 
 ## 图三 · 字节（另一个浅色版）
 
-![图三 · 字节模板 - 薄荷胶囊风](https://uichat-mira.github.io/moyu/images/template-bytedance.webp)
+![图三 · 字节模板 - 薄荷胶囊风](../../images/template-bytedance.webp)
 
 这张图的主题是——**过度装饰。**
 
