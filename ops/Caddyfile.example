@@ -1,10 +1,15 @@
-# Reference only. Verify the live Caddyfile and append a separate virtual host.
-# Replace placeholders with the approved domain and dedicated server directory.
-<approved-domain> {
-    root * /srv/www/<approved-domain>/current
+# Moyu vhost example for the confirmed apex domain 6260381.xyz.
+# The current Aliyun Caddy configuration binds its external vhosts to the
+# internal interface 172.18.58.221. Append this block via a separate import,
+# after obtaining privileged approval. Never overwrite tomzlab-web.caddy.
+# DNS A @ -> 8.138.2.174 is configured independently by domain owner.
+6260381.xyz {
+    bind 172.18.58.221
+    root * /srv/www/6260381.xyz/current
     encode zstd gzip
     @private path /.git* /.github/* /scripts/* /ops/* /AGENTS.md /README.md
     respond @private 404
+    # Important: /docs/about/ is an actual public article route.
     handle_errors {
         @not_found expression {err.status_code} == 404
         rewrite @not_found /404.html
