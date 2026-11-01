@@ -30,8 +30,8 @@ assert.match(about, /<article class="folio-markdown">/);
 assert.match(notFound, /noindex,nofollow/);
 assert.ok(!home.includes("moyu-hero"), "custom landing-page HTML should not be present");
 assert.ok(home.includes('rel="canonical" href="' + origin + normalizedBase), "homepage canonical mismatch");
-assert.ok(about.includes('rel="canonical" href="' + origin + normalizedBase + "about/"), "about canonical mismatch");
+assert.ok(about.includes('rel="canonical" href="' + origin + normalizedBase + "docs/about/"), "about canonical mismatch");
 assert.ok(sitemap.includes(origin + normalizedBase), "sitemap origin/base mismatch");
-assert.ok(sitemap.includes(origin + normalizedBase + "about/"), "about sitemap route missing");
+assert.ok(sitemap.includes(origin + normalizedBase + "docs/about/"), "about sitemap route missing");
 
 console.log("Folio 0.1.1 default UI and static SEO contract: PASS; base=" + normalizedBase);
