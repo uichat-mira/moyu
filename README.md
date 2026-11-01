@@ -6,7 +6,7 @@
 
 使用 Folio 的 **默认 FolioApp、默认首页、导航、搜索、主题切换和整站样式**。不维护独立 UI 组件、定制 CSS 或同功能的静态 HTML 模板。网站只配置标题、描述、导航以及 Markdown 内容。
 
-现有测试站：[test.6260381.xyz](https://test.6260381.xyz)。这个仓库最初只有 LICENSE，旧站公开 HTML 没有可核对的文章或原始图片清单；因此当前是新版站点底座，**不是已完成的旧文章和照片迁移**。请核对旧站内容来源后，再导入实际文章、照片和原 URL 映射。不要虚构个人经历或发表日期。
+现有测试站：[test.6260381.xyz](https://test.6260381.xyz)。这个仓库最初只有 LICENSE。2026-11-01 已从原站**浏览器真实渲染结果**核对迁入五篇博客、好物清单和关于小站，保留原路由。原站没有可核实的发布日期，因此不添加 date 字段。
 
 ## 开发
 
@@ -32,8 +32,12 @@ CI 对两种路径都运行构建和静态产物检查，保留根路径 artifac
 
 ## 内容
 
-- `content/pages/about.md`：根据现有站点简介编写的关于页。
-- `content/blogs/`：之后迁入可核对来源的真实文章（Markdown + Frontmatter）。
+- `content/blogs/`：五篇来自旧站的真实文章（保留原 slug、标题、正文及表格）。
+- `content/docs/about.md`：原站的关于小站。
+- `content/projects/good-things.md`：原站的好物清单。
+- `public/images/`：来自原站的三张优化 WebP，69/67/53 KB 的 JPEG 压到约 39/34/29 KB。
+
+文章图片使用 Pages 预览绝对 URL，生产切换前必须解决跨域名的静态资源地址；本阶段不自行改造 Folio 原生 API。
 
 新增文章示例：
 
@@ -53,7 +57,7 @@ tags: [日常]
 
 ## 交付边界
 
-当前增加了手动 GitHub Pages 公共评审预览，但没有自动覆盖 EdgeOne 的工作流。既有 `test.6260381.xyz` 网站不会因本 PR 被替换。正式上线仍按 `feat/* → dev → test → prod` 推进，需先确认域名、旧 URL、图片迁移及验收证据。
+当前 GitHub Pages 仅用于公开评审，EdgeOne 的 `test.6260381.xyz` 没有被覆盖。正式上线仍按 `feat/* → dev → test → prod` 推进；须先解决图片的预览绝对 URL，并完成实际运行和内容验收。
 
 - [Folio 0.1.1 Release](https://github.com/uichat-mira/folio/releases/tag/folio-v0.1.1)
 - [Folio consumer contract](https://github.com/uichat-mira/folio/blob/prod/docs/consumer-contract.md)
