@@ -17,6 +17,8 @@
 .moyu-site-footer__credit {
   display: flex;
   align-items: baseline;
+  justify-content: center;
+  text-align: center;
   flex-wrap: wrap;
   gap: 6px 16px;
   max-width: 1280px;
