@@ -36,6 +36,10 @@ CI 对两种路径都运行构建和静态产物检查，保留根路径 artifac
 
 Folio 0.1.1 的 `config.footer` 仅接受文本，不能原生输出交互链接，所以只用 `src/site-footer.css` 实现这一处小型站点特例并隐藏 Folio 默认纯文本 footer，其余仍由 Folio 原生样式负责。
 
+## 正式发布
+
+生产站 `https://6260381.xyz` 由 `uichat-mira/mira-cloud-infra` 的受保护 `prod` 发布链从本仓库的精确 `prod` 提交构建、原子部署与 HTTP 验证。这里不保存或调用生产服务器 SSH 凭据，也不触碰原 EdgeOne 测试站。
+
 ## 内容
 
 - `content/blogs/`：五篇来自旧站的真实文章（保留原 slug、标题、正文及表格）。
