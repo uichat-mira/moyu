@@ -1,0 +1,65 @@
+name: Folio Pages Preview
+
+# Preview-only runtime: checkout the exact Folio FOL-022 + FOL-023 + editorial-home candidate commit,
+# pack its public npm artifact and test it as an independent Moyu consumer.
+# The published npm dependency in package-lock.json remains @uichat-mira/folio@0.1.1.
+# Do NOT reuse this source-override path for production, test or dev promotion.
+on:
+  push:
+    branches: [pages-preview]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: moyu-pages-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned Folio collection + TOC candidate
+        uses: actions/checkout@v4
+        with:
+          repository: uichat-mira/folio
+          ref: a0d7c88c23b1a9f39b56d016626c2257659b57ae
+          path: .folio-preview-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Pack un-released Folio candidate for isolated preview
+        run: |
+          npm ci --no-audit --no-fund --prefix .folio-preview-source
+          mkdir -p "$RUNNER_TEMP/folio-preview-pkg"
+          npm pack --workspace @uichat-mira/folio --prefix .folio-preview-source --pack-destination "$RUNNER_TEMP/folio-preview-pkg"
+          ls -la "$RUNNER_TEMP/folio-preview-pkg"
+      - name: Install published Moyu dependencies, overlay only the preview candidate
+        run: |
+          npm ci --no-audit --no-fund
+          tarball="$(find "$RUNNER_TEMP/folio-preview-pkg" -maxdepth 1 -name '*.tgz' -print -quit)"
+          test -n "$tarball"
+          npm install --no-save --package-lock=false --no-audit --no-fund "$tarball"
+          node --input-type=module -e 'import {selectFolioCollectionDocs,folioCollectionIndexes,FolioToc} from "@uichat-mira/folio"; const xs=selectFolioCollectionDocs([{path:"/notes/2026/deep/a",title:"Nested"}],"/notes"); if(xs.length!==1 || folioCollectionIndexes({title:"X",description:"D",collections:[{path:"/notes"}]}).length!==1 || typeof FolioToc!=="function") process.exit(1); console.log("FOL-022 and FOL-023 candidate APIs installed")'
+      - name: Build and verify GitHub Pages project-path preview
+        run: npm run check
+        env:
+          SITE_ORIGIN: https://uichat-mira.github.io
+          VITE_SITE_BASE: /moyu/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Deploy isolated review preview
+        id: deployment
+        uses: actions/deploy-pages@v4
