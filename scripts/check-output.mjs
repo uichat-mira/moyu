@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 const base = process.env.VITE_SITE_BASE || "/";
 const normalizedBase = base === "/" ? "/" : "/" + base.replace(/^\/+|\/+$/g, "") + "/";
-const origin = (process.env.SITE_ORIGIN || "https://test.6260381.xyz").replace(/\/$/, "");
+const origin = (process.env.SITE_ORIGIN || "https://6260381.xyz").replace(/\/$/, "");
 
 for (const name of ["index.html", "blogs/index.html", "projects/index.html", "blogs/ai-agent-ux-rant/index.html", "blogs/wo-lai-le/index.html", "blogs/daily-fragments/index.html", "blogs/slacking-thoughts/index.html", "blogs/weekend/index.html", "projects/good-things/index.html", "docs/about/index.html", "images/template-ali.webp", "images/template-tencent.webp", "images/template-bytedance.webp", "404.html", "robots.txt", "sitemap.xml"]) {
   assert.ok(existsSync(join("dist", name)), "missing Folio static output: " + name);
