@@ -1,0 +1,63 @@
+name: Moyu Folio CI
+
+on:
+  push:
+    branches: [dev, test, prod]
+  pull_request:
+    branches: [dev, test, prod]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout exactly the Folio source accepted in Moyu preview
+        uses: actions/checkout@v4
+        with:
+          repository: uichat-mira/folio
+          ref: a0d7c88c23b1a9f39b56d016626c2257659b57ae
+          path: .folio-build-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Pack frozen Folio build dependency (no upstream changes)
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund --prefix .folio-build-source
+          mkdir -p "$RUNNER_TEMP/folio-package"
+          npm pack --workspace @uichat-mira/folio \
+            --prefix .folio-build-source \
+            --pack-destination "$RUNNER_TEMP/folio-package"
+      - name: Install Moyu and tested Folio build input
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          tarball="$(find "$RUNNER_TEMP/folio-package" -maxdepth 1 -name '*.tgz' -print -quit)"
+          test -n "$tarball"
+          npm install --no-save --package-lock=false --no-audit --no-fund "$tarball"
+      - name: Validate site root-path build
+        run: npm run check
+        env:
+          VITE_SITE_BASE: /
+          SITE_ORIGIN: https://6260381.xyz
+      - name: Preserve root-path artifact for visual review
+        uses: actions/upload-artifact@v4
+        with:
+          name: moyu-root-preview
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Verify GitHub Pages project-path build
+        run: npm run check
+        env:
+          VITE_SITE_BASE: /moyu/
+          SITE_ORIGIN: https://uichat-mira.github.io
