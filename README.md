@@ -1,17 +1,16 @@
 # 摸鱼划水记录 / Moyu
 
-Personal site built as an **independent consumer of the published Folio 0.1.1** runtime.
+个人网站，直接消费 npm 发布的 **`@uichat-mira/folio@0.1.1`**。
 
-## Current status
+## 设计原则
 
-The linked former test site is [test.6260381.xyz](https://test.6260381.xyz).
-Its public HTML currently exposes the title, description and a prerender placeholder, but no usable article inventory or original photos. This repository initially contained only LICENSE. Therefore this is a **new site scaffold**, not a verified migration of former blog posts.
+使用 Folio 的 **默认 FolioApp、默认首页、导航、搜索、主题切换和整站样式**。不维护独立 UI 组件、定制 CSS 或同功能的静态 HTML 模板。网站只配置标题、描述、导航以及 Markdown 内容。
 
-The home hero illustration is an original lightweight SVG made for this scaffold, not an original photo. Existing writing and photos should be imported only after provenance, permission, dates and original routes are confirmed.
+现有测试站：[test.6260381.xyz](https://test.6260381.xyz)。这个仓库最初只有 LICENSE，旧站公开 HTML 没有可核对的文章或原始图片清单；因此当前是新版站点底座，**不是已完成的旧文章和照片迁移**。请核对旧站内容来源后，再导入实际文章、照片和原 URL 映射。不要虚构个人经历或发表日期。
 
-## Development
+## 开发
 
-Requires Node 22.12+ (Node 24 recommended).
+Node 22.12+，推荐 Node 24。
 
 ```bash
 npm ci --no-audit --no-fund
@@ -19,31 +18,20 @@ npm run dev
 npm run check
 ```
 
-Build for the current custom-domain candidate:
+Folio 的 Vite 插件负责 `virtual:folio/content`、路由静态 HTML、404、sitemap、robots、canonical、OG 和 JSON-LD。UI 使用 `@uichat-mira/folio/styles.css`。
 
-```powershell
-$env:SITE_ORIGIN="https://test.6260381.xyz"
-$env:VITE_SITE_BASE="/"
-npm run check
-```
+自定义域名构建：`SITE_ORIGIN=https://test.6260381.xyz`、`VITE_SITE_BASE=/`。
 
-Build a GitHub Pages repository-path candidate:
+GitHub Pages 项目路径构建：`SITE_ORIGIN=https://uichat-mira.github.io`、`VITE_SITE_BASE=/moyu/`。
 
-```powershell
-$env:SITE_ORIGIN="https://uichat-mira.github.io"
-$env:VITE_SITE_BASE="/moyu/"
-npm run check
-```
+CI 对两种路径都运行构建和静态产物检查，保留可用于浏览器验收的根路径 artifact。
 
-Folio creates `dist/index.html`, `dist/about/index.html`, `dist/404.html`, `dist/sitemap.xml` and `dist/robots.txt`; these are real prerendered pages, not an SPA-only fallback.
+## 内容
 
-## Content
+- `content/pages/about.md`：根据现有站点简介编写的关于页。
+- `content/blogs/`：之后迁入可核对来源的真实文章（Markdown + Frontmatter）。
 
-- `content/pages/about.md`: the verified site-purpose description.
-- `content/blogs/`: future personally authored articles, with original provenance and reviewed Markdown.
-- `public/pond.svg`: lightweight starter illustration.
-
-Example article frontmatter (replace with real author-supplied content, **not** a fictitious demo):
+新增文章示例：
 
 ```yaml
 ---
@@ -57,13 +45,11 @@ tags: [日常]
 ---
 ```
 
-Only trusted/reviewed Markdown is allowed: Folio 0.1.1 intentionally preserves unsafe raw HTML and URLs without sanitization.
+**注意**：Folio 0.1.1 的 Markdown 渲染器保留原始 HTML，不对恶意内容做清洗。只接入作者本人或维护者审核过的可信内容。
 
-## Deploy boundary
+## 交付边界
 
-This repository currently adds CI only. It does **not** alter the existing EdgeOne deployment at `test.6260381.xyz`. Before switching DNS or routing, create the test branch and deployment integration, verify redirects for any former routes, verify assets, run HTTP smoke, and only promote accepted revisions through `dev → test → prod`.
+当前只有 CI，没有部署授权或自动覆盖 EdgeOne 的工作流。既有 `test.6260381.xyz` 网站不会因本 PR 被替换。按 `feat/* → dev → test → prod` 推进，实际部署前需先确认域名与旧 URL、图片迁移、实际桌面及手机浏览器验收。
 
-## Background and package
-
-- [Folio 0.1.1 release](https://github.com/uichat-mira/folio/releases/tag/folio-v0.1.1)
+- [Folio 0.1.1 Release](https://github.com/uichat-mira/folio/releases/tag/folio-v0.1.1)
 - [Folio consumer contract](https://github.com/uichat-mira/folio/blob/prod/docs/consumer-contract.md)

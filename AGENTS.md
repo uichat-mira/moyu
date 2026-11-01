@@ -1,14 +1,14 @@
 # Moyu repository instructions
 
-This site follows the current instructions in `uichat-mira/.github/AGENTS.md`.
+Follow the current `uichat-mira/.github/AGENTS.md`.
 
-## Ownership and scope
+## Boundaries
 
-- This repository owns the personal site "摸鱼划水记录" only.
-- The reusable Folio engine is owned by `uichat-mira/folio`. Consume its published npm package, currently `@uichat-mira/folio@0.1.1`; do not copy or patch library internals into this site.
-- `content/` owns authored/reviewed Markdown articles and pages. Do not fabricate the owner's autobiographical posts, timestamps, photographs or attribution.
-- `src/` owns site-specific layout and theme. `vite.config.ts` owns static output and SEO metadata.
-- Folio's Markdown renderer supports trusted reviewed source only. Do not feed unreviewed submissions into it.
+- This repo owns the personal site "摸鱼划水记录"; `uichat-mira/folio` owns the Folio runtime.
+- Consume published `@uichat-mira/folio@0.1.1` through public entrypoints only.
+- Use **Folio's built-in visual UI**: `FolioApp` and `@uichat-mira/folio/styles.css`. Do not introduce a custom homepage, alternative stylesheet or parallel static HTML template without explicit product approval.
+- Markdown in `content/` must be written/reviewed by the owner. Do not invent biographical posts, dates, photos or attribution. Folio does not sanitize untrusted raw HTML.
+- Use `SITE_ORIGIN` for canonical URLs and `VITE_SITE_BASE` for root or project path.
 
 ## Verification
 
@@ -17,18 +17,12 @@ npm ci --no-audit --no-fund
 npm run check
 ```
 
-The check must verify strict TypeScript, production build, HTML pages, sitemap, robots, and canonical URL. Also verify mobile and desktop layouts in a real browser before accepting visual changes.
+Verify both root-domain and GitHub Pages project-path builds. The built-in UI should receive actual desktop and mobile browser acceptance before promotion.
 
-## Environments
+## Deployment
 
-```text
-feat/* -> dev -> test -> prod
-```
-
-Production deployment must not run from feature, dev, or test branches.
-The current `test.6260381.xyz` site is an independent existing deployment; this repository does not control that domain unless explicit deployment credentials/routing are configured.
-`SITE_ORIGIN` is the canonical HTTPS origin; `VITE_SITE_BASE` is the hosting base path (e.g. / for custom domain, /moyu/ for repository Pages).
+`feat/* → dev → test → prod`. There is no active deploy integration for this repository. The existing EdgeOne site at `test.6260381.xyz` is a separate deployment and must not be overwritten without confirming its owner, current route set, and migration plan.
 
 ## Assets
 
-Optimize original images before accepting them into the repo. Prefer real author-owned originals with source metadata; generate thumbnails in WebP/AVIF when appropriate. Keep original archives outside Git unless small and explicitly required. Never claim the placeholder SVG is an old-site photo.
+Original photos should be inventoried and optimized after provenance is verified; no large image archive is stored in Git. Avoid using placeholder artwork to imply it originated from the former site.
