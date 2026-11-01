@@ -25,6 +25,13 @@ jobs:
         env:
           VITE_SITE_BASE: /
           SITE_ORIGIN: https://test.6260381.xyz
+      - name: Preserve root-path preview for visual acceptance
+        uses: actions/upload-artifact@v4
+        with:
+          name: moyu-root-preview
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
       - name: Verify GitHub Pages project-path build
         run: npm run build && node scripts/check-output.mjs
         env:
