@@ -1,7 +1,9 @@
 name: Folio Pages Preview
 
-# GitHub Pages is a public review preview, not the owner's live EdgeOne website.
-# Only the maintainer-updated pages-preview branch deploys; feature/dev/test pushes never deploy.
+# Preview-only runtime: checkout the exact Folio FOL-022 candidate commit,
+# pack its public npm artifact and test it as an independent Moyu consumer.
+# The published npm dependency in package-lock.json remains @uichat-mira/folio@0.1.1.
+# Do NOT reuse this source-override path for production, test or dev promotion.
 on:
   push:
     branches: [pages-preview]
@@ -19,17 +21,36 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch pinned Folio collection-index candidate
+        uses: actions/checkout@v4
+        with:
+          repository: uichat-mira/folio
+          ref: d05b0348ab29a86ba01ee4f7912eb3d2150af3c7
+          path: .folio-preview-source
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
-      - run: npm ci --no-audit --no-fund
+      - name: Pack un-released Folio candidate for isolated preview
+        run: |
+          npm ci --no-audit --no-fund --prefix .folio-preview-source
+          mkdir -p "$RUNNER_TEMP/folio-preview-pkg"
+          npm pack --workspace @uichat-mira/folio --prefix .folio-preview-source --pack-destination "$RUNNER_TEMP/folio-preview-pkg"
+          ls -la "$RUNNER_TEMP/folio-preview-pkg"
+      - name: Install published Moyu dependencies, overlay only the preview candidate
+        run: |
+          npm ci --no-audit --no-fund
+          tarball="$(find "$RUNNER_TEMP/folio-preview-pkg" -maxdepth 1 -name '*.tgz' -print -quit)"
+          test -n "$tarball"
+          npm install --no-save --package-lock=false --no-audit --no-fund "$tarball"
+          node --input-type=module -e 'import {FOLIO_COLLECTION_INDEXES} from "@uichat-mira/folio"; if(FOLIO_COLLECTION_INDEXES.length!==2) process.exit(1); console.log("FOL-022 preview candidate installed")'
       - name: Build and verify GitHub Pages project-path preview
         run: npm run check
         env:
@@ -39,6 +60,6 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-      - name: Deploy preview
+      - name: Deploy isolated review preview
         id: deployment
         uses: actions/deploy-pages@v4
