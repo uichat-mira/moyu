@@ -34,4 +34,15 @@ assert.ok(about.includes('rel="canonical" href="' + origin + normalizedBase + "d
 assert.ok(sitemap.includes(origin + normalizedBase), "sitemap origin/base mismatch");
 assert.ok(sitemap.includes(origin + normalizedBase + "docs/about/"), "about sitemap route missing");
 
-console.log("Folio 0.1.1 default UI and static SEO contract: PASS; base=" + normalizedBase);
+// The marketing link and ICP record must be present in static HTML as well as the React runtime.
+for (const page of [home, about, migrated, notFound]) {
+  assert.equal((page.match(/class="moyu-site-footer"/g) || []).length, 1, "expected one site footer per page");
+  assert.match(page, /Built with/);
+  assert.match(page, /href="https:\/\/github.com\/uichat-mira\/folio"/);
+  assert.match(page, /href="https:\/\/beian\.miit\.gov\.cn\/"/);
+  assert.match(page, /粤ICP备2026107949号-1/);
+}
+assert.match(home, /class="moyu-site-footer__icp"/);
+assert.match(home, /rel="noopener noreferrer"/);
+
+console.log("Folio 0.1.1 default UI, footer links, and static SEO contract: PASS; base=" + normalizedBase);

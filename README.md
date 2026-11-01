@@ -30,6 +30,12 @@ CI 对两种路径都运行构建和静态产物检查，保留根路径 artifac
 
 公开预览地址：[https://uichat-mira.github.io/moyu/](https://uichat-mira.github.io/moyu/)。这是只用于评审的 GitHub Pages 站，**不是**原 EdgeOne 域名的生产替代。`.github/workflows/pages-preview.yml` 仅由独立的 `pages-preview` 分支推送触发，评审者确认更新该预览分支时才会发布；`feat/*`、`dev`、`test` 和 `prod` 的普通推送不会自动更新该预览。预览部署不代表合并、验收或生产发布。
 
+## 页脚、备案与 Folio 署名
+
+站点页脚只在 `index.html` 中维护一次，位于 React 挂载点外，因此 Folio 预渲染 HTML 无 JavaScript 时也能显示。版权/推广行使用紧凑的 `Built with @uichat-mira/folio`（链接官方仓库）；底部独立居中显示 `粤ICP备2026107949号-1`，链接到工信部备案系统 `https://beian.miit.gov.cn/`。上线前由站主核对备案编号与实际接入域名一致。
+
+Folio 0.1.1 的 `config.footer` 仅接受文本，不能原生输出交互链接，所以只用 `src/site-footer.css` 实现这一处小型站点特例并隐藏 Folio 默认纯文本 footer，其余仍由 Folio 原生样式负责。
+
 ## 内容
 
 - `content/blogs/`：五篇来自旧站的真实文章（保留原 slug、标题、正文及表格）。
