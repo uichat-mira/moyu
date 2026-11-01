@@ -6,6 +6,7 @@ Follow the current `uichat-mira/.github/AGENTS.md`.
 
 - This repo owns the personal site "摸鱼划水记录"; `uichat-mira/folio` owns the Folio runtime.
 - Consume published `@uichat-mira/folio@0.1.1` through public entrypoints only.
+- The publicly accepted Pages UI is built with an **exact, frozen Folio source commit** packed read-only during GitHub Actions. The production deployment workflow may reuse that same audited SHA solely as a build-time input, without editing the Folio repository, releasing Folio, changing the package lockfile, or using a moving branch head. This is a temporary site-specific build exception; changing the SHA requires independent Moyu verification and an explicit release review.
 - Use **Folio's built-in visual UI**: `FolioApp` and `@uichat-mira/folio/styles.css`. Do not introduce a custom homepage, alternative stylesheet or parallel static HTML template without explicit product approval.
 - Markdown in `content/` must be written/reviewed by the owner. Do not invent biographical posts, dates, photos or attribution. Folio does not sanitize untrusted raw HTML.
 - Use `SITE_ORIGIN` for canonical URLs and `VITE_SITE_BASE` for root or project path.
