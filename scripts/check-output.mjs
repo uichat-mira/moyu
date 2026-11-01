@@ -35,6 +35,16 @@ const migrated = readFileSync(join("dist", "blogs/ai-agent-ux-rant/index.html"),
 assert.match(migrated, /大厂 AI 生成的博客模板/);
 assert.match(migrated, /template-ali.webp/);
 assert.match(migrated, /<article/);
+assert.match(migrated, /class="folio-article-layout"/, "long article missing native TOC layout");
+assert.match(migrated, /<details class="folio-article-mobile-toc"><summary>本页目录<\/summary>/);
+const tocTargets = [...migrated.matchAll(/href="#([^"]+)"/g)]
+  .map((match) => match[1])
+  .filter((id) => id !== "");
+assert.ok(tocTargets.length >= 3, "long article should expose at least three TOC anchors");
+for (const id of tocTargets) {
+  assert.ok(migrated.includes('id="' + id + '"'), "TOC target missing from Markdown: " + id);
+}
+
 for (const path of ["blogs/ai-agent-ux-rant", "blogs/wo-lai-le", "blogs/daily-fragments", "blogs/slacking-thoughts", "blogs/weekend", "projects/good-things", "docs/about"]) {
   assert.ok(sitemap.includes(origin + normalizedBase + path + "/"), "missing migrated URL: " + path);
 }
