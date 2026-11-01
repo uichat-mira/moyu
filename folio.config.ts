@@ -10,6 +10,11 @@ export default defineFolioConfig({
     { label: "好物", href: "/projects" },
     { label: "关于", href: "/docs/about" },
   ],
+  // Folio FOL-022 candidate: route-prefix recursive collection indexes.
+  collections: [
+    { path: "/blogs", title: "博客", description: "写下的文章与日常" },
+    { path: "/projects", title: "好物", description: "值得留下的发现" },
+  ],
   // The linked, compliant footer is authored once in index.html, outside React's root.
   footer: "",
 });
