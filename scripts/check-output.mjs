@@ -19,8 +19,8 @@ assert.match(home, /class="folio-editorial-feature"/);
 assert.match(home, /class="folio-editorial-meta"/);
 assert.match(home, /class="folio-editorial-recent"/);
 assert.match(home, /class="folio-editorial-side-section"/);
-assert.match(home, /href="\/moyu\/blogs\/"/);
-assert.match(home, /href="\/moyu\/projects\/"/);
+assert.ok(home.includes('href="' + normalizedBase + 'blogs/'), "blog index link must use configured base");
+assert.ok(home.includes('href="' + normalizedBase + 'projects/'), "project index link must use configured base");
 assert.match(home, /<h2>博客<\/h2>/);
 assert.match(home, /<h2>好物<\/h2>/);
 assert.match(home, /class="folio-entry-list"/);
@@ -78,4 +78,4 @@ for (const page of [home, about, migrated, notFound]) {
 assert.match(home, /class="moyu-site-footer__icp"/);
 assert.match(home, /rel="noopener noreferrer"/);
 
-console.log("Folio 0.1.1 default UI, footer links, and static SEO contract: PASS; base=" + normalizedBase);
+console.log("Moyu frozen Folio build, footer links, and static SEO contract: PASS; base=" + normalizedBase);
