@@ -50,7 +50,7 @@ jobs:
           tarball="$(find "$RUNNER_TEMP/folio-preview-pkg" -maxdepth 1 -name '*.tgz' -print -quit)"
           test -n "$tarball"
           npm install --no-save --package-lock=false --no-audit --no-fund "$tarball"
-          node --input-type=module -e 'import {FOLIO_COLLECTION_INDEXES} from "@uichat-mira/folio"; if(FOLIO_COLLECTION_INDEXES.length!==2) process.exit(1); console.log("FOL-022 preview candidate installed")'
+          node --input-type=module -e 'import {selectFolioCollectionDocs,folioCollectionIndexes} from "@uichat-mira/folio"; const xs=selectFolioCollectionDocs([{path:"/notes/2026/deep/a",title:"Nested"}],"/notes"); if(xs.length!==1 || folioCollectionIndexes({title:"X",description:"D",collections:[{path:"/notes"}]}).length!==1) process.exit(1); console.log("FOL-022 recursive route API installed")'
       - name: Build and verify GitHub Pages project-path preview
         run: npm run check
         env:
