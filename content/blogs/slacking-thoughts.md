@@ -1,10 +1,9 @@
 ---
 title: "摸鱼随想"
 description: "关于「摸鱼」这件事的一些胡思乱想，不构成任何建议。"
-type: article
 path: "/blogs/slacking-thoughts"
+type: "article"
 group: "博客"
-order: 10
 ---
 
 我必须先声明：这篇不是教你怎么摸鱼的。

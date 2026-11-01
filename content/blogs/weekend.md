@@ -1,10 +1,9 @@
 ---
 title: "周末的样子"
 description: "一个普通周末的流水账，没什么主题，就是记录。"
-type: article
 path: "/blogs/weekend"
+type: "article"
 group: "博客"
-order: 10
 ---
 
 ## 周六

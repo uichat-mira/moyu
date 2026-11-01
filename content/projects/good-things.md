@@ -1,10 +1,9 @@
 ---
 title: "好物分享"
 description: "用着顺手、让我觉得生活更舒服一点的小东西，不接广告，纯自用分享。"
-type: project
 path: "/projects/good-things"
+type: "project"
 group: "好物"
-order: 10
 ---
 
 这里收集一些我日常在用、觉得不错的小东西。
