@@ -26,7 +26,7 @@ export function HomePage({ docs, basePath }: Props) {
         <div className="moyu-hero__copy">
           <span className="moyu-kicker"><span className="moyu-live-dot" /> AN UNHURRIED LITTLE CORNER</span>
           <p className="moyu-intro">工作之外，还有生活。</p>
-          <h1 id="moyu-title">摸鱼划水<span>记录</span><i>。</i></h1>
+          <h1 id="moyu-title">摸鱼划水<span>记录<i>。</i></span></h1>
           <p className="moyu-hero__lede">
             记一点日常，存几段心情。忙里偷闲不必找借口，生活本来就值得认真记录。
           </p>
