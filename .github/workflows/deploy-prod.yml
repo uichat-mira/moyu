@@ -49,8 +49,8 @@ jobs:
             echo "::error::Set MOYU_SITE_ORIGIN to https://hostname (no path)."
             exit 1
           }
-          [[ "$MOYU_SITE_ORIGIN" != "https://uichat-mira.github.io" ]] || {
-            echo "::error::The GitHub Pages URL is only for review."
+          [[ "$MOYU_SITE_ORIGIN" == "https://6260381.xyz" ]] || {
+            echo "::error::Production canonical origin must equal https://6260381.xyz."
             exit 1
           }
 
