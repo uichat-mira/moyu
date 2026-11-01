@@ -7,7 +7,9 @@ export default defineFolioConfig({
   siteUrl: process.env.SITE_ORIGIN || "https://test.6260381.xyz",
   navigation: [
     { label: "首页", href: "/" },
-    { label: "关于", href: "/about" },
+    { label: "博客", href: "/blogs/ai-agent-ux-rant" },
+    { label: "好物", href: "/projects/good-things" },
+    { label: "关于", href: "/docs/about" },
   ],
   footer: "摸鱼划水记录 · 一个不赶时间的个人角落",
 });
