@@ -21,7 +21,7 @@ Verify both root-domain and GitHub Pages project-path builds. The built-in UI sh
 
 ## Deployment
 
-`feat/* → dev → test → prod`. There is no active deploy integration for this repository. The existing EdgeOne site at `test.6260381.xyz` is a separate deployment and must not be overwritten without confirming its owner, current route set, and migration plan.
+`feat/* → dev → test → prod` governs production promotion. GitHub Pages at `https://uichat-mira.github.io/moyu/` is a separate **public review preview**, explicitly requested by the maintainer. The `pages-preview.yml` workflow deploys only from the isolated `pages-preview` branch (promoted there explicitly by its maintainer), never automatically on PR, feature, dev or test pushes; this preview is not production acceptance or promotion. The existing EdgeOne site at `test.6260381.xyz` is an independent deployment and must not be overwritten without confirming its owner, current route set, and migration plan.
 
 ## Assets
 

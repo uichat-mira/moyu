@@ -24,7 +24,11 @@ Folio 的 Vite 插件负责 `virtual:folio/content`、路由静态 HTML、404、
 
 GitHub Pages 项目路径构建：`SITE_ORIGIN=https://uichat-mira.github.io`、`VITE_SITE_BASE=/moyu/`。
 
-CI 对两种路径都运行构建和静态产物检查，保留可用于浏览器验收的根路径 artifact。
+CI 对两种路径都运行构建和静态产物检查，保留根路径 artifact。
+
+## GitHub Pages 预览
+
+公开预览地址：[https://uichat-mira.github.io/moyu/](https://uichat-mira.github.io/moyu/)。这是只用于评审的 GitHub Pages 站，**不是**原 EdgeOne 域名的生产替代。`.github/workflows/pages-preview.yml` 仅由独立的 `pages-preview` 分支推送触发，评审者确认更新该预览分支时才会发布；`feat/*`、`dev`、`test` 和 `prod` 的普通推送不会自动更新该预览。预览部署不代表合并、验收或生产发布。
 
 ## 内容
 
@@ -49,7 +53,7 @@ tags: [日常]
 
 ## 交付边界
 
-当前只有 CI，没有部署授权或自动覆盖 EdgeOne 的工作流。既有 `test.6260381.xyz` 网站不会因本 PR 被替换。按 `feat/* → dev → test → prod` 推进，实际部署前需先确认域名与旧 URL、图片迁移、实际桌面及手机浏览器验收。
+当前增加了手动 GitHub Pages 公共评审预览，但没有自动覆盖 EdgeOne 的工作流。既有 `test.6260381.xyz` 网站不会因本 PR 被替换。正式上线仍按 `feat/* → dev → test → prod` 推进，需先确认域名、旧 URL、图片迁移及验收证据。
 
 - [Folio 0.1.1 Release](https://github.com/uichat-mira/folio/releases/tag/folio-v0.1.1)
 - [Folio consumer contract](https://github.com/uichat-mira/folio/blob/prod/docs/consumer-contract.md)
