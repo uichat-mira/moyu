@@ -2,7 +2,7 @@
 title: "关于小站"
 description: "关于「摸鱼划水记录」这个站，以及站主本人。"
 path: "/docs/about"
-type: "doc"
+type: "page"
 group: "关于"
 ---
 
