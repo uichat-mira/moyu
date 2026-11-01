@@ -1,0 +1,14 @@
+# Reference only. Verify the live Caddyfile and append a separate virtual host.
+# Replace placeholders with the approved domain and dedicated server directory.
+<approved-domain> {
+    root * /srv/www/<approved-domain>/current
+    encode zstd gzip
+    @private path /.git* /.github/* /scripts/* /ops/* /AGENTS.md /README.md
+    respond @private 404
+    handle_errors {
+        @not_found expression {err.status_code} == 404
+        rewrite @not_found /404.html
+        file_server
+    }
+    file_server
+}
