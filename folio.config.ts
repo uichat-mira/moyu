@@ -6,8 +6,8 @@ export default defineFolioConfig({
   siteUrl: process.env.SITE_ORIGIN || "https://test.6260381.xyz",
   navigation: [
     { label: "首页", href: "/" },
-    { label: "博客", href: "/blogs/ai-agent-ux-rant" },
-    { label: "好物", href: "/projects/good-things" },
+    { label: "博客", href: "/blogs" },
+    { label: "好物", href: "/projects" },
     { label: "关于", href: "/docs/about" },
   ],
   // The linked, compliant footer is authored once in index.html, outside React's root.
