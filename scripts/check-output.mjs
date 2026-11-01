@@ -14,7 +14,11 @@ const about = readFileSync(join("dist", "docs/about/index.html"), "utf8");
 const sitemap = readFileSync(join("dist", "sitemap.xml"), "utf8");
 const notFound = readFileSync(join("dist", "404.html"), "utf8");
 
-assert.match(home, /<main class="folio-prerender">/);
+assert.match(home, /<main class="folio-home folio-journal-home">/);
+assert.match(home, /最近的文章/);
+assert.match(home, /好物与发现/);
+assert.match(home, /class="folio-entry-list"/);
+assert.ok(!home.includes('class="folio-card"'), "default home should not use oversized cards");
 assert.match(home, /摸鱼划水记录/);
 assert.match(home, /property="og:title"/);
 assert.match(home, /application\/ld\+json/);
