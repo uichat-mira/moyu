@@ -1,0 +1,32 @@
+name: Moyu Folio CI
+
+on:
+  push:
+    branches: [dev, test, prod]
+  pull_request:
+    branches: [dev, test, prod]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+        env:
+          VITE_SITE_BASE: /
+          SITE_ORIGIN: https://test.6260381.xyz
+      - name: Verify GitHub Pages project-path build
+        run: npm run build && node scripts/check-output.mjs
+        env:
+          VITE_SITE_BASE: /moyu/
+          SITE_ORIGIN: https://uichat-mira.github.io

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 620" role="img" aria-labelledby="t d">
+  <title id="t">水边小憩</title>
+  <desc id="d">暖色背景上，两条简约小鱼游过水纹。</desc>
+  <rect width="680" height="620" fill="#ebdfca"/>
+  <circle cx="354" cy="310" r="240" fill="#d1dfcf"/>
+  <circle cx="354" cy="310" r="190" fill="none" stroke="#a1b9ae" stroke-width="2" opacity=".6"/>
+  <circle cx="354" cy="310" r="135" fill="none" stroke="#a1b9ae" stroke-width="2" opacity=".6"/>
+  <path d="M180 350c95-57 194-56 299-11" stroke="#83a59a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M215 408c120-40 205-32 292-3" stroke="#83a59a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <g transform="translate(275 285) rotate(-24)">
+    <ellipse cx="0" cy="0" rx="72" ry="31" fill="#bb674f"/>
+    <path d="M-62 0-119-46v92Z" fill="#c78065"/>
+    <path d="M-14-28q22-36 53-5" stroke="#db9b83" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <circle cx="39" cy="-4" r="5" fill="#382c28"/>
+  </g>
+  <g transform="translate(444 405) rotate(152)">
+    <ellipse cx="0" cy="0" rx="56" ry="24" fill="#516f6b"/>
+    <path d="M-48 0-97-36v72Z" fill="#72938b"/>
+    <circle cx="31" cy="-3" r="4" fill="#f5ead9"/>
+  </g>
+  <path d="m132 140 7 18 18 7-18 7-7 18-7-18-18-7 18-7Z" fill="#bb674f"/>
+  <path d="m540 146 5 14 14 5-14 5-5 14-5-14-14-5 14-5Z" fill="#bb674f"/>
+  <path d="M490 243c11-11 23-11 34 0M507 227c10-10 22-10 32 0" stroke="#e6eee2" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>
