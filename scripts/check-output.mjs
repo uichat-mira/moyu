@@ -1,17 +1,53 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const base = process.env.VITE_SITE_BASE || "/";
 const normalizedBase = base === "/" ? "/" : "/" + base.replace(/^\/+|\/+$/g, "") + "/";
 const origin = (process.env.SITE_ORIGIN || "https://6260381.xyz").replace(/\/$/, "");
 
-for (const name of ["index.html", "blogs/index.html", "projects/index.html", "blogs/ai-agent-ux-rant/index.html", "blogs/wo-lai-le/index.html", "blogs/daily-fragments/index.html", "blogs/slacking-thoughts/index.html", "blogs/weekend/index.html", "projects/good-things/index.html", "docs/about/index.html", "images/template-ali.webp", "images/template-tencent.webp", "images/template-bytedance.webp", "404.html", "robots.txt", "sitemap.xml"]) {
+for (const name of ["index.html", "blogs/index.html", "projects/index.html", "blogs/ai-agent-ux-rant/index.html", "blogs/wo-lai-le/index.html", "blogs/daily-fragments/index.html", "blogs/slacking-thoughts/index.html", "blogs/weekend/index.html", "projects/good-things/index.html", "docs/about/index.html", "images/template-ali.webp", "images/template-tencent.webp", "images/template-bytedance.webp", "images/moyu-logo.webp", "favicon.ico", "404.html", "robots.txt", "sitemap.xml"]) {
   assert.ok(existsSync(join("dist", name)), "missing Folio static output: " + name);
 }
+const logoPath = join("dist", "images/moyu-logo.webp");
+const logoBytes = readFileSync(logoPath);
+assert.ok(logoBytes.length > 1024, "Moyu logo must carry actual image data");
+assert.equal(logoBytes.subarray(0, 4).toString("ascii"), "RIFF", "Moyu logo must be RIFF");
+assert.equal(logoBytes.subarray(8, 12).toString("ascii"), "WEBP", "Moyu logo must be WebP");
+assert.equal(logoBytes.readUInt32LE(4) + 8, logoBytes.length, "WebP RIFF length must match actual file (detect truncation)");
+assert.equal(logoBytes.subarray(12, 16).toString("ascii"), "VP8X", "Moyu WebP must support transparency");
+const faviconBytes = readFileSync(join("dist", "favicon.ico"));
+assert.equal(faviconBytes.readUInt16LE(0), 0, "ICO reserved field must be zero");
+assert.equal(faviconBytes.readUInt16LE(2), 1, "favicon must be ICO");
+const iconCount = faviconBytes.readUInt16LE(4);
+assert.equal(iconCount, 4, "favicon must include 16, 32, 48 and 64 pixel variants");
+assert.ok(faviconBytes.length >= 6 + iconCount * 16, "favicon icon directory must fit");
+const iconSizes = new Set();
+for (let i = 0; i < iconCount; i++) {
+  const entry = 6 + i * 16;
+  const width = faviconBytes[entry] || 256;
+  const height = faviconBytes[entry + 1] || 256;
+  assert.equal(width, height, "favicon entries must be square");
+  iconSizes.add(width);
+  const bytes = faviconBytes.readUInt32LE(entry + 8);
+  const offset = faviconBytes.readUInt32LE(entry + 12);
+  assert.ok(bytes > 50, "favicon entry cannot be empty");
+  assert.ok(offset >= 6 + iconCount * 16 && offset + bytes <= faviconBytes.length, "favicon PNG entry cannot be truncated");
+  assert.equal(faviconBytes.subarray(offset, offset + 8).toString("hex"), "89504e470d0a1a0a", "favicon entry must be PNG");
+  assert.equal(faviconBytes.subarray(offset + bytes - 8, offset + bytes - 4).toString("ascii"), "IEND", "favicon PNG must be complete");
+}
+assert.deepEqual([...iconSizes].sort((a, b) => a - b), [16, 32, 48, 64]);
+
 const home = readFileSync(join("dist", "index.html"), "utf8");
 const about = readFileSync(join("dist", "docs/about/index.html"), "utf8");
 const sitemap = readFileSync(join("dist", "sitemap.xml"), "utf8");
+
+assert.ok(home.includes('href="' + normalizedBase + 'favicon.ico"'), "favicon must use the configured base path");
+assert.ok(home.includes('content="' + origin + normalizedBase + 'images/moyu-logo.webp"'), "Open Graph logo must use the configured origin and base path");
+const runtimeBundles = readdirSync(join("dist", "assets"))
+  .filter((name) => name.endsWith(".js"))
+  .map((name) => readFileSync(join("dist", "assets", name), "utf8"));
+assert.ok(runtimeBundles.some((bundle) => bundle.includes(normalizedBase + "images/moyu-logo.webp")), "Folio header logo must use the configured base path");
 const notFound = readFileSync(join("dist", "404.html"), "utf8");
 
 assert.match(home, /<main class="folio-home folio-journal-home folio-editorial-home">/);
