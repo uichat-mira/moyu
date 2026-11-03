@@ -1,17 +1,24 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const base = process.env.VITE_SITE_BASE || "/";
 const normalizedBase = base === "/" ? "/" : "/" + base.replace(/^\/+|\/+$/g, "") + "/";
 const origin = (process.env.SITE_ORIGIN || "https://6260381.xyz").replace(/\/$/, "");
 
-for (const name of ["index.html", "blogs/index.html", "projects/index.html", "blogs/ai-agent-ux-rant/index.html", "blogs/wo-lai-le/index.html", "blogs/daily-fragments/index.html", "blogs/slacking-thoughts/index.html", "blogs/weekend/index.html", "projects/good-things/index.html", "docs/about/index.html", "images/template-ali.webp", "images/template-tencent.webp", "images/template-bytedance.webp", "404.html", "robots.txt", "sitemap.xml"]) {
+for (const name of ["index.html", "blogs/index.html", "projects/index.html", "blogs/ai-agent-ux-rant/index.html", "blogs/wo-lai-le/index.html", "blogs/daily-fragments/index.html", "blogs/slacking-thoughts/index.html", "blogs/weekend/index.html", "projects/good-things/index.html", "docs/about/index.html", "images/template-ali.webp", "images/template-tencent.webp", "images/template-bytedance.webp", "images/moyu-logo.webp", "favicon.ico", "404.html", "robots.txt", "sitemap.xml"]) {
   assert.ok(existsSync(join("dist", name)), "missing Folio static output: " + name);
 }
 const home = readFileSync(join("dist", "index.html"), "utf8");
 const about = readFileSync(join("dist", "docs/about/index.html"), "utf8");
 const sitemap = readFileSync(join("dist", "sitemap.xml"), "utf8");
+
+assert.ok(home.includes('href="' + normalizedBase + 'favicon.ico"'), "favicon must use the configured base path");
+assert.ok(home.includes('content="' + origin + normalizedBase + 'images/moyu-logo.webp"'), "Open Graph logo must use the configured origin and base path");
+const runtimeBundles = readdirSync(join("dist", "assets"))
+  .filter((name) => name.endsWith(".js"))
+  .map((name) => readFileSync(join("dist", "assets", name), "utf8"));
+assert.ok(runtimeBundles.some((bundle) => bundle.includes(normalizedBase + "images/moyu-logo.webp")), "Folio header logo must use the configured base path");
 const notFound = readFileSync(join("dist", "404.html"), "utf8");
 
 assert.match(home, /<main class="folio-home folio-journal-home folio-editorial-home">/);

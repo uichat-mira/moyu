@@ -6,10 +6,15 @@ import "./site-footer.css";
 import docs from "virtual:folio/content";
 import config from "../folio.config";
 
+const runtimeConfig = {
+  ...config,
+  logo: `${import.meta.env.BASE_URL}images/moyu-logo.webp`,
+};
+
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <FolioApp
-      config={config}
+      config={runtimeConfig}
       docs={docs as FolioDoc[]}
       basePath={import.meta.env.BASE_URL}
     />
