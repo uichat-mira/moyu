@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const base = process.env.VITE_SITE_BASE || "/";
@@ -11,14 +11,32 @@ for (const name of ["index.html", "blogs/index.html", "projects/index.html", "bl
 }
 const logoPath = join("dist", "images/moyu-logo.webp");
 const logoBytes = readFileSync(logoPath);
-assert.ok(statSync(logoPath).size > 8000, "Moyu logo WebP must be complete");
-assert.equal(logoBytes.subarray(0, 4).toString("ascii"), "RIFF", "Moyu logo must be a RIFF image");
+assert.ok(logoBytes.length > 1024, "Moyu logo must carry actual image data");
+assert.equal(logoBytes.subarray(0, 4).toString("ascii"), "RIFF", "Moyu logo must be RIFF");
 assert.equal(logoBytes.subarray(8, 12).toString("ascii"), "WEBP", "Moyu logo must be WebP");
+assert.equal(logoBytes.readUInt32LE(4) + 8, logoBytes.length, "WebP RIFF length must match actual file (detect truncation)");
+assert.equal(logoBytes.subarray(12, 16).toString("ascii"), "VP8X", "Moyu WebP must support transparency");
 const faviconBytes = readFileSync(join("dist", "favicon.ico"));
-assert.ok(faviconBytes.length > 8000, "Moyu favicon ICO must contain all resolutions");
-assert.equal(faviconBytes.readUInt16LE(0), 0, "favicon ICO reserved field must be zero");
-assert.equal(faviconBytes.readUInt16LE(2), 1, "favicon must be an ICO resource");
-assert.ok(faviconBytes.readUInt16LE(4) >= 3, "favicon must include 16, 32, and 48 pixel variants");
+assert.equal(faviconBytes.readUInt16LE(0), 0, "ICO reserved field must be zero");
+assert.equal(faviconBytes.readUInt16LE(2), 1, "favicon must be ICO");
+const iconCount = faviconBytes.readUInt16LE(4);
+assert.equal(iconCount, 4, "favicon must include 16, 32, 48 and 64 pixel variants");
+assert.ok(faviconBytes.length >= 6 + iconCount * 16, "favicon icon directory must fit");
+const iconSizes = new Set();
+for (let i = 0; i < iconCount; i++) {
+  const entry = 6 + i * 16;
+  const width = faviconBytes[entry] || 256;
+  const height = faviconBytes[entry + 1] || 256;
+  assert.equal(width, height, "favicon entries must be square");
+  iconSizes.add(width);
+  const bytes = faviconBytes.readUInt32LE(entry + 8);
+  const offset = faviconBytes.readUInt32LE(entry + 12);
+  assert.ok(bytes > 50, "favicon entry cannot be empty");
+  assert.ok(offset >= 6 + iconCount * 16 && offset + bytes <= faviconBytes.length, "favicon PNG entry cannot be truncated");
+  assert.equal(faviconBytes.subarray(offset, offset + 8).toString("hex"), "89504e470d0a1a0a", "favicon entry must be PNG");
+  assert.equal(faviconBytes.subarray(offset + bytes - 8, offset + bytes - 4).toString("ascii"), "IEND", "favicon PNG must be complete");
+}
+assert.deepEqual([...iconSizes].sort((a, b) => a - b), [16, 32, 48, 64]);
 
 const home = readFileSync(join("dist", "index.html"), "utf8");
 const about = readFileSync(join("dist", "docs/about/index.html"), "utf8");
