@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const base = process.env.VITE_SITE_BASE || "/";
@@ -9,6 +9,17 @@ const origin = (process.env.SITE_ORIGIN || "https://6260381.xyz").replace(/\/$/,
 for (const name of ["index.html", "blogs/index.html", "projects/index.html", "blogs/ai-agent-ux-rant/index.html", "blogs/wo-lai-le/index.html", "blogs/daily-fragments/index.html", "blogs/slacking-thoughts/index.html", "blogs/weekend/index.html", "projects/good-things/index.html", "docs/about/index.html", "images/template-ali.webp", "images/template-tencent.webp", "images/template-bytedance.webp", "images/moyu-logo.webp", "favicon.ico", "404.html", "robots.txt", "sitemap.xml"]) {
   assert.ok(existsSync(join("dist", name)), "missing Folio static output: " + name);
 }
+const logoPath = join("dist", "images/moyu-logo.webp");
+const logoBytes = readFileSync(logoPath);
+assert.ok(statSync(logoPath).size > 8000, "Moyu logo WebP must be complete");
+assert.equal(logoBytes.subarray(0, 4).toString("ascii"), "RIFF", "Moyu logo must be a RIFF image");
+assert.equal(logoBytes.subarray(8, 12).toString("ascii"), "WEBP", "Moyu logo must be WebP");
+const faviconBytes = readFileSync(join("dist", "favicon.ico"));
+assert.ok(faviconBytes.length > 8000, "Moyu favicon ICO must contain all resolutions");
+assert.equal(faviconBytes.readUInt16LE(0), 0, "favicon ICO reserved field must be zero");
+assert.equal(faviconBytes.readUInt16LE(2), 1, "favicon must be an ICO resource");
+assert.ok(faviconBytes.readUInt16LE(4) >= 3, "favicon must include 16, 32, and 48 pixel variants");
+
 const home = readFileSync(join("dist", "index.html"), "utf8");
 const about = readFileSync(join("dist", "docs/about/index.html"), "utf8");
 const sitemap = readFileSync(join("dist", "sitemap.xml"), "utf8");
