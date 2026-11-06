@@ -38,7 +38,7 @@ Folio 0.1.1 的 `config.footer` 仅接受文本，不能原生输出交互链接
 
 ## 正式发布
 
-生产站 `https://6260381.xyz` 由 `uichat-mira/mira-cloud-infra` 的受保护 `prod` 发布链从本仓库的精确 `prod` 提交构建、原子部署与 HTTP 验证。这里不保存或调用生产服务器 SSH 凭据，也不触碰原 EdgeOne 测试站。
+生产站 `https://6260381.xyz` 使用本仓库 `prod` 的 `.github/workflows/esa-production.yml` 发布到阿里云 ESA Pages `production` 环境，沿用已经通过 staging 验证的固定 Folio 构建输入。GitHub Actions Secrets 持有 RAM AccessKey，部署前核对 ESA 站点激活状态，部署后绑定根域名并进行 HTTPS 验证。实际生产可访问性仍以运行日志和公网验收为准；不改动 EdgeOne 的 `test.6260381.xyz`。
 
 ## 内容
 
@@ -67,7 +67,7 @@ tags: [日常]
 
 ## 交付边界
 
-当前 GitHub Pages 仅用于公开评审，EdgeOne 的 `test.6260381.xyz` 没有被覆盖。正式上线仍按 `feat/* → dev → test → prod` 推进；须先解决图片的预览绝对 URL，并完成实际运行和内容验收。
+GitHub Pages 仅用于公开评审，EdgeOne 的 `test.6260381.xyz` 没有被覆盖。普通代码推广遵循 `feat/* → dev → test → prod`；本次第一次 ESA production 发布是站主明确授权的迁移，需独立核验页面、图片路径、DNS 与 SSL/TLS。
 
 - [Folio 0.1.1 Release](https://github.com/uichat-mira/folio/releases/tag/folio-v0.1.1)
 - [Folio consumer contract](https://github.com/uichat-mira/folio/blob/prod/docs/consumer-contract.md)
