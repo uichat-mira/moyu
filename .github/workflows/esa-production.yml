@@ -94,6 +94,16 @@ jobs:
             exit 1
           fi
 
+      - name: Install pinned ESA DNS SDK for narrow apex record repair
+        run: python -m pip install alibabacloud_esa20240910==3.16.0
+
+      - name: Remove verified retired root A record only
+        shell: bash
+        env:
+          ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+        run: python scripts/esa_dns_repair.py
+
       - name: Deploy static site to ESA production
         shell: bash
         env:
