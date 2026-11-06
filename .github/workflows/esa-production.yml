@@ -113,17 +113,31 @@ jobs:
           ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
         run: |
           set -euo pipefail
-          # Alibaba's root-domain syntax is @.example.com, not example.com.
+          # ESA CLI 1.0.13 validDomain() rejects the console-only @. notation.
+          # The Functions & Pages API expects a plain valid hostname here.
           existing="$(esa-cli domain list)"
           printf '%s\n' "$existing"
-          if printf '%s\n' "$existing" | grep -Eq '(^|[^[:alnum:].-])(@[.])?6260381[.]xyz([^[:alnum:].-]|$)'; then
+          if printf '%s\n' "$existing" | grep -Fq '6260381.xyz'; then
             echo "Apex domain is already bound to this ESA Pages project."
           else
-            esa-cli domain add '@.6260381.xyz'
+            if output="$(esa-cli domain add 6260381.xyz 2>&1)"; then
+              printf '%s\n' "$output"
+            else
+              printf '%s\n' "$output"
+              echo "::error::ESA CLI domain add command failed."
+              exit 1
+            fi
           fi
-          esa-cli domain list
-          echo "Binding does not replace registrar NS or third-party CNAME records."
-          echo "A CNAME-connected ESA site may still require its assigned DNS record at the authoritative provider."
+          # ESA CLI sometimes prints an ERROR while returning exit status 0.
+          # Treat the postcondition, not the CLI's process status, as the truth.
+          bound="$(esa-cli domain list)"
+          printf '%s\n' "$bound"
+          if ! printf '%s\n' "$bound" | grep -Fq '6260381.xyz'; then
+            echo "::error::ESA domain add did not create a binding for 6260381.xyz."
+            exit 1
+          fi
+          echo "ESA Pages apex domain binding verified."
+          echo "CNAME-mode ESA sites may still require authoritative DNS changes."
 
       - name: Verify official HTTPS website
         shell: bash
