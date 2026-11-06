@@ -1,82 +1,28 @@
-# Moyu production deployment
+# Moyu official site / ESA Pages production
 
-## The only production pipeline
+## Release contract
 
-A push to `prod` triggers `.github/workflows/deploy-prod.yml`. GitHub Actions
-checks out the Moyu source, installs dependencies, compiles and verifies the
-static site, then directly uploads **dist/** via SSH/rsync to the approved
-domestic server. The server does not run npm, Node or Folio.
+- Official origin: `https://6260381.xyz` (apex); no `www` hostname is assumed.
+- Source branch: `prod` only. The production workflow is `.github/workflows/esa-production.yml`.
+- ESA Pages project: `moyu-esa-staging`, historically named at first staging deployment. The same project holds **separate staging and production code versions**.
+- Existing validated test deployment: `test` → `.github/workflows/esa-pages.yml` → ESA `staging`. Never use a staging code-version ID for production.
+- Preserve the exact accepted Folio build source commit `a0d7c88c23b1a9f39b56d016626c2257659b57ae`. Build with `SITE_ORIGIN=https://6260381.xyz`, `VITE_SITE_BASE=/`.
+- Actions secrets are `ALIBABA_CLOUD_ACCESS_KEY_ID` and `ALIBABA_CLOUD_ACCESS_KEY_SECRET`; no SSH credentials or plaintext keys in git.
 
-For visual parity with the user-accepted GitHub Pages preview, the build
-reads the **fixed Folio candidate commit**
-`a0d7c88c23b1a9f39b56d016626c2257659b57ae` and packs it into the
-Runner. No Folio repository is modified and no npm release is required.
-The public Moyu manifest and lockfile still reference Folio 0.1.1.
-This commit is fixed, not automatically upgraded. Future changes to
-that build input must receive separate review and Moyu regression testing.
+## One-time bootstrapping and domain binding
 
-Do not overwrite the separate EdgeOne site `test.6260381.xyz`.
+The owner authorized replacing the previously non-functional domestic publishing path with an ESA Pages static website on 2026-11-06. Do **not** assume that a successful staging deployment means the ESA root site is already activated.
 
-## Confirmed domain and DNS handoff (2026-11-01)
+The production workflow deliberately fails before deployment unless `esa-cli site list` shows `6260381.xyz` activated. In an activated ESA site it publishes a new version to `production`, then uses the documented root-domain syntax `esa-cli domain add '@.6260381.xyz'` if the apex is not yet bound to this project.
 
-- Official apex hostname: `6260381.xyz` (not `test.6260381.xyz`).
-- Aliyun Guangzhou host's **existing Caddy configuration** explicitly uses public endpoint `8.138.2.174` (the machine itself binds private NIC `172.18.58.221`). The dedicated static document root for this site is `/srv/www/6260381.xyz/current`.
-- The domain owner must set DNS `A @ → 8.138.2.174` in the authoritative zone. Current apex DNS still has multiple unrelated `36.158.219.*` CDN A records; **replace** rather than add A entries, and only after server-side host/TLS validation to avoid downtime. A `www` redirect can be added separately if the owner wants it.
-- The old `test.6260381.xyz` remains a CNAME to `test.6260381.xyz.pages.dnsoe5.com` (EdgeOne). Preserve it untouched.
-- Current `https://6260381.xyz` is **not** the new blog: the existing CDN returns a 301 redirect toward a third-party expired-hosting page. Do not mistake its HTTP response for the new site.
-- The operator must verify that the approved ICP record `粤ICP备2026107949号-1` covers this host and is suitable for domestic deployment before cutting DNS.
-- Caddy currently imports separate vhost files under `/etc/caddy/`. Add the isolated Moyu block to its own file and import it; do not replace `/etc/caddy/tomzlab-web.caddy` or other active sites.
-- Before DNS cutover, smoke the site by overriding DNS temporarily (e.g. `curl --resolve 6260381.xyz:443:8.138.2.174 https://6260381.xyz/`) only **after** the vhost and HTTPS certificate are ready. TLS issuance may require the real DNS first; do not claim pre-cutover HTTPS smoke in that case.
+ESA domain binding creates the site's DNS record. If the site is connected through NS, authoritative DNS follows ESA once delegation has propagated. If connected through CNAME, the owner must still set the exact ESA-issued CNAME record with the authoritative DNS provider; the workflow intentionally cannot guess it. HTTPS also requires a valid ESA SSL/TLS certificate. No unrelated nameservers, subdomains or test routes are modified.
 
-## Production environment configuration
+## Smoke and completion
 
-Create the GitHub Actions environment `production` with the following
-repository variables and secrets:
+After binding, the workflow checks homepage HTML and required Folio page markers, then HTTPS routes for blogs, projects, About, a long-form article, logo and favicon. A failed smoke makes the action red **even if production upload or domain binding succeeded**. Examine Actions steps individually before retrying; do not report success based solely on upload.
 
-| Name | Kind | Purpose |
-| --- | --- | --- |
-| MOYU_SITE_ORIGIN | variable | `https://6260381.xyz` (enforced by the prod Action) |
-| MOYU_DEPLOY_HOST | variable | `8.138.2.174` (verified against current host Caddy config) |
-| MOYU_DEPLOY_USER | variable | Site-limited SSH deploy username |
-| MOYU_DEPLOY_ROOT | variable | `/srv/www/6260381.xyz` (must be provisioned separately) |
-| MOYU_DEPLOY_KEY | secret | Site-specific private SSH key |
-| MOYU_KNOWN_HOSTS | secret | Independently verified SSH known-hosts entry |
+Do not change `test.6260381.xyz` (separate EdgeOne review site) or GitHub Pages review. If the official site does not resolve, check activation, NS/CNAME mode, authoritative DNS and SSL/TLS before attempting another build.
 
-None of these are configured at the time of writing. The workflow
-**fails closed** if any required setting is missing. Do not invent
-the IP, host, directory, SSH credentials or the owner's domain.
+## Historical hosting
 
-## One-time host setup
-
-An authorized server operator verifies domain ownership and the
-applicable ICP filing, adds a separate Caddy virtual host using
-`ops/Caddyfile.example` and creates the dedicated directory
-`/srv/www/6260381.xyz`. This path must NOT be Tomzlab's site.
-
-Create `releases/` and an explicit empty `.moyu-site-root` marker
-within that dedicated root. Make it writable to the site-specific SSH
-account and readable to Caddy; the root's `current` path must be absent
-or a symlink. The SSH host key must be verified independently before
-adding it to GitHub Secrets.
-
-Deployment writes only to `releases/<exact-commit-sha>/` and switches
-`current` atomically to that release. It retains older releases for
-rollback. Caddy reads only `<site-root>/current`. Do not replace the
-existing Caddy config or its Tomzlab virtual host.
-
-## Verification and promotion
-
-Use the normal `feat/* → dev → test → prod` promotion. The workflow
-builds the checked-out `prod` SHA on GitHub's Ubuntu runner. It uses
-`VITE_SITE_BASE=/` and production `SITE_ORIGIN`. It checks article
-routes, genuine static HTML, sitemap, images, TOC and footer before
-upload; the deployment job verifies the explicit root marker and SSH
-host identity; then HTTPS smoke checks the homepage, blog collection,
-project collection, About and long article.
-
-GitHub Pages remains an isolated review preview, not production.
-Neither a successful PR merge nor a successful build-only step proves
-the server was deployed.
-
-Rollback: switch the dedicated root's `current` symlink to a previously
-verified `releases/<sha>`. No server-side rebuild is required.
+The former domestic Caddy/SSH server deployment instructions are superseded for this site. They applied to an older unproven delivery route and are not authority to reintroduce SSH credentials or overwrite other Mira Cloud infrastructure. The current owner-approved delivery route is the ESA workflow above.
