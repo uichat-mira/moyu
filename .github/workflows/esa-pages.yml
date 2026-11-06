@@ -1,8 +1,11 @@
 name: Moyu ESA Pages Staging
 
 # Isolated ESA staging proof of deployment, not production promotion.
+# Only test-branch push deploys; workflow_dispatch is reserved for when registered on the default branch.
 # Production remains owned by uichat-mira/mira-cloud-infra.
 on:
+  push:
+    branches: [test]
   workflow_dispatch:
 
 permissions:
