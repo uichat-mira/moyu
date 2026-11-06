@@ -1,0 +1,8 @@
+{
+  "name": "moyu-esa-staging",
+  "description": "Moyu isolated ESA Pages staging; no production domain binding",
+  "assets": {
+    "directory": "./dist",
+    "notFoundStrategy": "404Page"
+  }
+}
