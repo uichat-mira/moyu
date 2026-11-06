@@ -1,0 +1,154 @@
+name: Moyu ESA Pages Production
+
+# Production is deployed only from prod, never from dev/test or a PR.
+# The same ESA Pages project has independent staging and production versions.
+on:
+  push:
+    branches: [prod]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: moyu-esa-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Publish and verify official domain
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Enforce production branch
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/prod" ]]; then
+            echo "::error::Production deployment requires the prod branch."
+            exit 1
+          fi
+
+      - name: Checkout Moyu production source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned Folio preview-approved source
+        uses: actions/checkout@v4
+        with:
+          repository: uichat-mira/folio
+          ref: a0d7c88c23b1a9f39b56d016626c2257659b57ae
+          path: .folio-build-source
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Pack frozen Folio input
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund --prefix .folio-build-source
+          mkdir -p "$RUNNER_TEMP/folio-package"
+          npm pack --workspace @uichat-mira/folio \
+            --prefix .folio-build-source \
+            --pack-destination "$RUNNER_TEMP/folio-package"
+
+      - name: Install Moyu dependencies and audited Folio build
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          tarball="$(find "$RUNNER_TEMP/folio-package" -maxdepth 1 -name '*.tgz' -print -quit)"
+          test -n "$tarball"
+          npm install --no-save --package-lock=false --no-audit --no-fund "$tarball"
+
+      - name: Verify production root-domain static build
+        run: npm run check
+        env:
+          SITE_ORIGIN: https://6260381.xyz
+          VITE_SITE_BASE: /
+
+      - name: Install ESA CLI (same version as verified staging)
+        run: |
+          npm install --global esa-cli@1.0.13
+          esa-cli --version
+
+      - name: Preflight activated ESA site and credentials
+        shell: bash
+        env:
+          ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$ALIBABA_CLOUD_ACCESS_KEY_ID" || -z "$ALIBABA_CLOUD_ACCESS_KEY_SECRET" ]]; then
+            echo "::error::Missing Alibaba Cloud AccessKey repository secrets."
+            exit 1
+          fi
+          sites="$(esa-cli site list)"
+          printf '%s\n' "$sites"
+          if ! printf '%s\n' "$sites" | grep -Eq '(^|[^[:alnum:].-])6260381[.]xyz([^[:alnum:].-]|$)'; then
+            echo "::error::ESA site 6260381.xyz is not activated under this account. Add and activate it in ESA before domain binding. No production deploy or DNS changes were made."
+            exit 1
+          fi
+
+      - name: Deploy static site to ESA production
+        shell: bash
+        env:
+          ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+        run: |
+          set -euo pipefail
+          esa-cli deploy \
+            --environment production \
+            --no-preview \
+            --description "Moyu prod $GITHUB_SHA"
+
+      - name: Bind official apex domain to ESA Pages
+        shell: bash
+        env:
+          ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+        run: |
+          set -euo pipefail
+          # Alibaba's root-domain syntax is @.example.com, not example.com.
+          existing="$(esa-cli domain list)"
+          printf '%s\n' "$existing"
+          if printf '%s\n' "$existing" | grep -Eq '(^|[^[:alnum:].-])(@[.])?6260381[.]xyz([^[:alnum:].-]|$)'; then
+            echo "Apex domain is already bound to this ESA Pages project."
+          else
+            esa-cli domain add '@.6260381.xyz'
+          fi
+          esa-cli domain list
+          echo "Binding does not replace registrar NS or third-party CNAME records."
+          echo "A CNAME-connected ESA site may still require its assigned DNS record at the authoritative provider."
+
+      - name: Verify official HTTPS website
+        shell: bash
+        run: |
+          set -euo pipefail
+          page="$RUNNER_TEMP/moyu-home.html"
+          healthy=0
+          for attempt in $(seq 1 8); do
+            if curl --silent --show-error --fail --location --max-time 15 \
+                "https://6260381.xyz/" -o "$page" &&
+                grep -Fq 'folio-editorial-feature' "$page" &&
+                grep -Fq '摸鱼划水记录' "$page"; then
+              healthy=1
+              break
+            fi
+            echo "HTTPS propagation or site verification pending (attempt $attempt/8)"
+            sleep 12
+          done
+          if [[ "$healthy" -ne 1 ]]; then
+            echo "::error::ESA production deployment or domain binding may have succeeded, but HTTPS apex smoke failed; verify DNS method, certificate, and propagation."
+            exit 1
+          fi
+          for path in /blogs/ /projects/ /docs/about/ /blogs/ai-agent-ux-rant/ /images/moyu-logo.webp /favicon.ico; do
+            curl --silent --show-error --fail --location --max-time 15 \
+              "https://6260381.xyz$path" -o /dev/null
+            echo "Verified https://6260381.xyz$path"
+          done
+          echo "Moyu ESA production T5 smoke PASS: $GITHUB_SHA"
