@@ -94,16 +94,6 @@ jobs:
             exit 1
           fi
 
-      - name: Install pinned ESA DNS SDK for narrow apex record repair
-        run: python -m pip install alibabacloud_esa20240910==3.16.0
-
-      - name: Remove verified retired root A record only
-        shell: bash
-        env:
-          ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
-          ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
-        run: python scripts/esa_dns_repair.py
-
       - name: Deploy static site to ESA production
         shell: bash
         env:
@@ -116,38 +106,22 @@ jobs:
             --no-preview \
             --description "Moyu prod $GITHUB_SHA"
 
-      - name: Bind official apex domain to ESA Pages
+      - name: Verify existing official apex domain binding (read-only)
         shell: bash
         env:
           ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
           ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
         run: |
           set -euo pipefail
-          # ESA CLI 1.0.13 validDomain() rejects the console-only @. notation.
-          # The Functions & Pages API expects a plain valid hostname here.
-          existing="$(esa-cli domain list)"
-          printf '%s\n' "$existing"
-          if printf '%s\n' "$existing" | grep -Fq '6260381.xyz'; then
-            echo "Apex domain is already bound to this ESA Pages project."
-          else
-            if output="$(esa-cli domain add 6260381.xyz 2>&1)"; then
-              printf '%s\n' "$output"
-            else
-              printf '%s\n' "$output"
-              echo "::error::ESA CLI domain add command failed."
-              exit 1
-            fi
-          fi
-          # ESA CLI sometimes prints an ERROR while returning exit status 0.
-          # Treat the postcondition, not the CLI's process status, as the truth.
-          bound="$(esa-cli domain list)"
+          # Binding and stale DNS deletion were one-time migration tasks.
+          # ESA CLI may print an error while exiting 0, so verify the actual output.
+          bound="$(esa-cli domain list 2>&1)"
           printf '%s\n' "$bound"
-          if ! printf '%s\n' "$bound" | grep -Fq '6260381.xyz'; then
-            echo "::error::ESA domain add did not create a binding for 6260381.xyz."
+          if ! printf '%s\n' "$bound" | grep -Eq '(^|[^[:alnum:].-])6260381[.]xyz([^[:alnum:].-]|$)'; then
+            echo "::error::The official apex is not bound to this ESA Pages project. No DNS changes attempted."
             exit 1
           fi
-          echo "ESA Pages apex domain binding verified."
-          echo "CNAME-mode ESA sites may still require authoritative DNS changes."
+          echo "ESA Pages apex binding verified (read-only)."
 
       - name: Verify official HTTPS website
         shell: bash
