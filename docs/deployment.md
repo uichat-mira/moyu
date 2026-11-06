@@ -13,7 +13,7 @@
 
 The owner authorized replacing the previously non-functional domestic publishing path with an ESA Pages static website on 2026-11-06. Do **not** assume that a successful staging deployment means the ESA root site is already activated.
 
-The production workflow deliberately fails before deployment unless `esa-cli site list` shows `6260381.xyz` activated. In an activated ESA site it publishes a new version to `production`, then uses the documented root-domain syntax `esa-cli domain add '@.6260381.xyz'` if the apex is not yet bound to this project.
+The production workflow deliberately fails before deployment unless `esa-cli site list` shows `6260381.xyz` activated. In an activated ESA site it publishes a new version to `production`, then uses ESA CLI's supported root-domain syntax `esa-cli domain add 6260381.xyz` (the console-only `@.example.com` notation fails CLI validation) if the apex is not yet bound to this project.
 
 ESA domain binding creates the site's DNS record. If the site is connected through NS, authoritative DNS follows ESA once delegation has propagated. If connected through CNAME, the owner must still set the exact ESA-issued CNAME record with the authoritative DNS provider; the workflow intentionally cannot guess it. HTTPS also requires a valid ESA SSL/TLS certificate. No unrelated nameservers, subdomains or test routes are modified.
 
