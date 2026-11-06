@@ -132,7 +132,7 @@ jobs:
           page="$RUNNER_TEMP/moyu-home.html"
           healthy=0
           for attempt in $(seq 1 8); do
-            if curl --silent --show-error --fail --location --max-time 15 \
+            if curl --silent --show-error --fail --location --proto '=https' --proto-redir '=https' --max-time 15 \
                 "https://6260381.xyz/" -o "$page" &&
                 grep -Fq 'folio-editorial-feature' "$page" &&
                 grep -Fq '摸鱼划水记录' "$page"; then
@@ -147,7 +147,7 @@ jobs:
             exit 1
           fi
           for path in /blogs/ /projects/ /docs/about/ /blogs/ai-agent-ux-rant/ /images/moyu-logo.webp /favicon.ico; do
-            curl --silent --show-error --fail --location --max-time 15 \
+            curl --silent --show-error --fail --location --proto '=https' --proto-redir '=https' --max-time 15 \
               "https://6260381.xyz$path" -o /dev/null
             echo "Verified https://6260381.xyz$path"
           done
