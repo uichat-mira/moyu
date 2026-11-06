@@ -1,0 +1,8 @@
+{
+  "name": "moyu-esa-staging",
+  "description": "Moyu official website (staging and production versions)",
+  "assets": {
+    "directory": "./dist",
+    "notFoundStrategy": "404Page"
+  }
+}
