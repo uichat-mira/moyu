@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
       - name: Checkout exact Folio 0.2.0 production source accepted for Moyu verification
         uses: actions/checkout@v4
