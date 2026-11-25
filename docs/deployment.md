@@ -1,28 +1,77 @@
-# Moyu official site / ESA Pages production
+# Moyu production release (Huawei ECS)
 
-## Release contract
+## Current production contract
 
-- Official origin: `https://6260381.xyz` (apex); no `www` hostname is assumed.
-- Source branch: `prod` only. The production workflow is `.github/workflows/esa-production.yml`.
-- ESA Pages project: `moyu-esa-staging`, historically named at first staging deployment. The same project holds **separate staging and production code versions**.
-- Existing validated test deployment: `test` → `.github/workflows/esa-pages.yml` → ESA `staging`. Never use a staging code-version ID for production.
-- Preserve the exact accepted Folio build source commit `a0d7c88c23b1a9f39b56d016626c2257659b57ae`. Build with `SITE_ORIGIN=https://6260381.xyz`, `VITE_SITE_BASE=/`.
-- Actions secrets are `ALIBABA_CLOUD_ACCESS_KEY_ID` and `ALIBABA_CLOUD_ACCESS_KEY_SECRET`; no SSH credentials or plaintext keys in git.
+- Official apex: `https://6260381.xyz`; `https://www.6260381.xyz` redirects to the apex.
+- Source of truth: an exact accepted commit on `uichat-mira/moyu:prod`. Never deploy a moving branch head.
+- Current production host: Huawei Cloud ECS `hcss-ecs-afed`, public IPv4 `124.70.99.72`.
+- Host stack: Ubuntu 24.04 + BaoTa + Nginx.
+- Static release root: `/www/wwwroot/6260381.xyz/releases/<MOYU_PROD_SHA>`.
+- Active release: atomic symlink `/www/wwwroot/6260381.xyz/current`.
+- Nginx vhost: `/www/server/panel/vhost/nginx/6260381.xyz.conf`.
+- TLS: Let's Encrypt certificate under `/etc/letsencrypt/live/6260381.xyz/`; renewal is owned by the system `certbot.timer`.
+- Build contract: `SITE_ORIGIN=https://6260381.xyz`, `VITE_SITE_BASE=/`, `npm run check`.
+- Current Folio dependency: published `@uichat-mira/folio@0.2.0`.
 
-## Completed one-time migration and recurring release
+## DNS
 
-The owner authorized replacing the previously non-functional domestic publishing path with an ESA Pages static website on 2026-11-06. Do **not** assume that a successful staging deployment means the ESA root site is already activated.
+Authoritative DNS remains on ESA/ATrustDNS:
 
-The production workflow deliberately fails before deployment unless `esa-cli site list` shows `6260381.xyz` activated. It publishes a new code version to `production`, then **checks** `esa-cli domain list` for an exact existing apex binding. It does not create, delete or replace any DNS records or domain binding during routine releases. If the binding is missing, the workflow fails closed and requires a separate reviewed repair.
+- `mount-tai.ns.atrustdns.com`
+- `nasser.ns.atrustdns.com`
 
-The one-time migration to ESA completed in GitHub Actions run `42249069753`: the audited obsolete root A record was removed and the new ESA Pages apex binding was created. That migration is **not** part of future production runs. ESA domain binding creates the site's DNS record. If the site is connected through NS, authoritative DNS follows ESA once delegation has propagated. If connected through CNAME, the owner must still set the exact ESA-issued CNAME record with the authoritative DNS provider; the workflow intentionally cannot guess it. HTTPS also requires a valid ESA SSL/TLS certificate. No unrelated nameservers, subdomains or test routes are modified.
+Production records are direct DNS-only records, not ESA-proxied traffic:
 
-## Smoke and completion
+- `6260381.xyz` → A/AAAA value `124.70.99.72`, proxy off
+- `www.6260381.xyz` → A/AAAA value `124.70.99.72`, proxy off
 
-After binding, the workflow checks homepage HTML and required Folio page markers, then HTTPS routes for blogs, projects, About, a long-form article, logo and favicon. A failed smoke makes the action red **even if production upload or domain binding succeeded**. Examine Actions steps individually before retrying; do not report success based solely on upload.
+Do not change the nameserver delegation for routine releases. Do not turn ESA proxying back on unless the maintainer explicitly selects ESA as a rollback target and the ESA production artifact has been independently verified.
 
-Do not change `test.6260381.xyz` (separate EdgeOne review site) or GitHub Pages review. If the official site does not resolve, check activation, NS/CNAME mode, authoritative DNS and SSL/TLS before attempting another build.
+## Release procedure
 
-## Historical hosting
+1. Promote source through `feat/* → dev → test → prod`.
+2. Record the exact 40-character `prod` SHA selected for release.
+3. Build that exact commit from a clean install:
+   - `npm ci --no-audit --no-fund`
+   - `SITE_ORIGIN=https://6260381.xyz VITE_SITE_BASE=/ npm run check`
+4. Package only `dist/`.
+5. On Huawei, extract into a new immutable release directory under `/www/wwwroot/6260381.xyz/releases/<SHA>`.
+6. Switch `current` atomically to the new release.
+7. Run Nginx configuration validation before reload.
+8. Verify local HTTPS on the host and public HTTPS from an independent client.
+9. Verify the required product contract on the public site: Editorial home, article routes, `tzt2026` byline/avatar/profile, Git-native publication date, favicon/logo, and ICP footer.
 
-The former domestic Caddy/SSH server deployment instructions are superseded for this site. They applied to an older unproven delivery route and are not authority to reintroduce SSH credentials or overwrite other Mira Cloud infrastructure. The current owner-approved delivery route is the ESA workflow above.
+A successful build, upload, DNS write, certificate issuance, or Nginx reload alone is not production acceptance.
+
+## TLS renewal
+
+HTTP remains reachable only to redirect ordinary traffic to HTTPS and to serve `/.well-known/acme-challenge/` from the active site root. Do not remove that exception: certbot uses it for renewal.
+
+Before changing renewal configuration, preserve:
+
+- `6260381.xyz` and `www.6260381.xyz` in the certificate SANs;
+- DNS-only routing to the Huawei host while HTTP-01 validation is performed;
+- a passing `nginx -t` before reload.
+
+## ESA status
+
+ESA Pages production is retired from the automatic release path. The historical production workflow may be kept only as a **manual emergency fallback** and must not trigger on `prod` pushes. ESA staging used by `test` is a separate verification surface and does not define production.
+
+The one-time migration to ESA on 2026-11-06 and the later return to Huawei are historical evidence, not recurring release steps.
+
+## Historical infrastructure
+
+The older `uichat-mira/mira-cloud-infra` Moyu Caddy/SSH release path targets the previous domestic host and is not the current production authority. Its static release files may be retained for rollback/audit, but the Moyu Caddy import must remain disabled unless the maintainer explicitly reactivates that route.
+
+Do not copy historical SSH credentials, overwrite unrelated `tomzlab.cn`/Mira Cloud ingress, or use that old workflow merely because it still exists.
+
+## Current cutover evidence
+
+The Huawei production cutover completed on 2026-11-26 with:
+
+- deployed site source: `37cfac6be9b43c080e62b861d65fdfc28f670516` (the accepted `prod` commit selected at cutover)
+- Folio: `0.2.0`
+- Huawei release symlink targeting that exact Moyu SHA
+- ESA apex + `www` records changed from proxied to DNS-only while preserving value `124.70.99.72`
+- Let's Encrypt certificate covering both apex and `www`
+- independent direct-Huawei HTTPS smoke covering homepage, article attribution, Git date, and ICP footer
