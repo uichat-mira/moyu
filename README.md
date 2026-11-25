@@ -1,6 +1,6 @@
 # 摸鱼划水记录 / Moyu
 
-个人网站，直接消费 npm 发布的 **`@uichat-mira/folio@0.1.1`**。
+个人网站，直接消费 npm 发布的 **`@uichat-mira/folio@0.2.0`**。
 
 ## 设计原则
 
@@ -34,7 +34,7 @@ CI 对两种路径都运行构建和静态产物检查，保留根路径 artifac
 
 站点页脚只在 `index.html` 中维护一次，位于 React 挂载点外，因此 Folio 预渲染 HTML 无 JavaScript 时也能显示。版权/推广行使用紧凑的 `Built with @uichat-mira/folio`（链接官方仓库）；底部独立居中显示 `粤ICP备2026107949号-1`，链接到工信部备案系统 `https://beian.miit.gov.cn/`。上线前由站主核对备案编号与实际接入域名一致。
 
-Folio 0.1.1 的 `config.footer` 仅接受文本，不能原生输出交互链接，所以只用 `src/site-footer.css` 实现这一处小型站点特例并隐藏 Folio 默认纯文本 footer，其余仍由 Folio 原生样式负责。
+本站现有链接页脚是在 Folio 0.1.1 阶段形成的站点特例；升级到 0.2.0 本轮保持其结构不变，不借依赖升级顺手重做页面。其余视觉与阅读 UI 仍由 Folio 原生样式负责。
 
 ## 正式发布
 
@@ -69,5 +69,5 @@ tags: [日常]
 
 当前 GitHub Pages 仅用于公开评审，EdgeOne 的 `test.6260381.xyz` 没有被覆盖。正式上线仍按 `feat/* → dev → test → prod` 推进；须先解决图片的预览绝对 URL，并完成实际运行和内容验收。
 
-- [Folio 0.1.1 Release](https://github.com/uichat-mira/folio/releases/tag/folio-v0.1.1)
+- [Folio 0.2.0 Release](https://github.com/uichat-mira/folio/releases/tag/folio-v0.2.0)
 - [Folio consumer contract](https://github.com/uichat-mira/folio/blob/prod/docs/consumer-contract.md)
