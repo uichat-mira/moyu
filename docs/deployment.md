@@ -69,7 +69,7 @@ Do not copy historical SSH credentials, overwrite unrelated `tomzlab.cn`/Mira Cl
 
 The Huawei production cutover completed on 2026-11-26 with:
 
-- Moyu `prod`: `37cfac6be9b43c080e62b861d65fdfc28f670516`
+- deployed site source: `37cfac6be9b43c080e62b861d65fdfc28f670516` (the accepted `prod` commit selected at cutover)
 - Folio: `0.2.0`
 - Huawei release symlink targeting that exact Moyu SHA
 - ESA apex + `www` records changed from proxied to DNS-only while preserving value `124.70.99.72`
