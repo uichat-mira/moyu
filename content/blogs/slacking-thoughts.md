@@ -4,6 +4,10 @@ description: "关于「摸鱼」这件事的一些胡思乱想，不构成任何
 path: "/blogs/slacking-thoughts"
 type: "article"
 group: "博客"
+author:
+  name: "tzt2026"
+  url: "https://github.com/tzt2026"
+  avatar: "https://avatars.githubusercontent.com/u/330912145?v=4"
 ---
 
 我必须先声明：这篇不是教你怎么摸鱼的。

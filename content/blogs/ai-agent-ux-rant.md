@@ -4,6 +4,10 @@ description: "阿里、字节、腾讯三家的 AI 生成博客模板，配色�
 path: "/blogs/ai-agent-ux-rant"
 type: "article"
 group: "博客"
+author:
+  name: "tzt2026"
+  url: "https://github.com/tzt2026"
+  avatar: "https://avatars.githubusercontent.com/u/330912145?v=4"
 ---
 
 先叠个甲：以下内容纯属看图吐槽，你觉得好看那就是你对。
