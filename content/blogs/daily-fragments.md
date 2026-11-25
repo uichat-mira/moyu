@@ -4,6 +4,10 @@ description: "一些零散的、不值得单独成篇的生活片段，攒在一
 path: "/blogs/daily-fragments"
 type: "article"
 group: "博客"
+author:
+  name: "tzt2026"
+  url: "https://github.com/tzt2026"
+  avatar: "https://avatars.githubusercontent.com/u/330912145?v=4"
 ---
 
 生活大多是碎片，拼不成完整的故事。
