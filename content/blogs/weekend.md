@@ -4,6 +4,10 @@ description: "一个普通周末的流水账，没什么主题，就是记录。
 path: "/blogs/weekend"
 type: "article"
 group: "博客"
+author:
+  name: "tzt2026"
+  url: "https://github.com/tzt2026"
+  avatar: "https://avatars.githubusercontent.com/u/330912145?v=4"
 ---
 
 ## 周六
