@@ -4,6 +4,10 @@ description: "小站开张，先打个招呼。记录工作学习之余的生活
 path: "/blogs/wo-lai-le"
 type: "article"
 group: "博客"
+author:
+  name: "tzt2026"
+  url: "https://github.com/tzt2026"
+  avatar: "https://avatars.githubusercontent.com/u/330912145?v=4"
 ---
 
 我来了。

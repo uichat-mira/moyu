@@ -77,6 +77,11 @@ const migrated = readFileSync(join("dist", "blogs/ai-agent-ux-rant/index.html"),
 assert.match(migrated, /大厂 AI 生成的博客模板/);
 assert.match(migrated, /template-ali.webp/);
 assert.match(migrated, /<article/);
+assert.match(migrated, /class="folio-doc-meta__name">tzt2026<\/span>/, "article byline must use the owner's GitHub login");
+assert.match(migrated, /https:\/\/avatars\.githubusercontent\.com\/u\/330912145\?v=4/, "article byline must use the owner's GitHub avatar");
+assert.match(migrated, /\"author\":\[\{\"@type\":\"Person\",\"name\":\"tzt2026\",\"url\":\"https:\/\/github\.com\/tzt2026\"\}\]/, "Article JSON-LD must link the owner's GitHub profile");
+assert.match(migrated, /<time datetime="2026-11-01T09:40:45\.000Z">2026 年 11 月 1 日<\/time>/, "article date must preserve the real Git first-commit timestamp");
+assert.ok(!/folio-doc-meta[\\s\\S]{0,800}Tomz/.test(migrated), "Git importer identity must not leak into the editorial byline");
 assert.match(migrated, /class="folio-article-layout"/, "long article missing native TOC layout");
 assert.match(migrated, /<details class="folio-article-mobile-toc"><summary>本页目录<\/summary>/);
 const tocTargets = [...migrated.matchAll(/href="#([^"]+)"/g)]
