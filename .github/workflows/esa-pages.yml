@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: uichat-mira/folio
-          ref: a0d7c88c23b1a9f39b56d016626c2257659b57ae
+          ref: eabb0c546a642ad3cb30744a6c69baecec357233
           path: .folio-build-source
           persist-credentials: false
 
